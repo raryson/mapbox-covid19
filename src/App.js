@@ -38,7 +38,7 @@ function App() {
     if (data) {
       const map = new mapboxgl.Map({
         container: mapboxElRef.current,
-        style: 'mapbox://styles/notalemesa/ck8dqwdum09ju1ioj65e3ql3k',
+        style: 'mapbox://styles/rarysonrost/ck8p8atvv05v01imrb3gtagep',
         center: [16, 27],
         zoom: 2
       });
@@ -47,6 +47,39 @@ function App() {
       map.addControl(new mapboxgl.NavigationControl());
 
       map.once('load', function () {
+
+
+        /* Image: An image is loaded and added to the map. */
+        map.loadImage("https://i.imgur.com/Cprz6oO.png", function (error, image) {
+          if (error) throw error
+          map.addImage("custom-marker", image);
+          /* Style layer: A style layer ties together the source and image and specifies how they are displayed on the map. */
+          map.addLayer({
+            id: "markers",
+            type: "symbol",
+            /* Source: A data source specifies the geographic coordinate where the image marker gets placed. */
+            source: {
+              type: "geojson",
+              data: {
+                type: 'FeatureCollection',
+                features: [
+                  {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                      type: "Point",
+                      coordinates: [-79.9071, 39.0512]
+                    }
+                  }
+                ]
+              }
+            },
+
+          });
+        });
+
+
+
         // Add our SOURCE
         map.addSource('points', {
           type: 'geojson',
@@ -58,48 +91,10 @@ function App() {
 
         // Add our layer
         map.addLayer({
-          id: 'circles',
+          id: 'markers',
           source: 'points', // this should be the id of source
-          type: 'circle',
-          paint: {
-            'circle-opacity': 0.75,
-            'circle-stroke-width': ['interpolate', ['linear'], ['get', 'cases'], 1, 1, 100000, 1.75],
-            'circle-radius': [
-              'interpolate',
-              ['linear'],
-              ['get', 'cases'],
-              1,
-              4,
-              1000,
-              8,
-              4000,
-              10,
-              8000,
-              14,
-              12000,
-              18,
-              100000,
-              40
-            ],
-            'circle-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'cases'],
-              1,
-              '#ffffb2',
-              5000,
-              '#fed976',
-              10000,
-              '#feb24c',
-              25000,
-              '#fd8d3c',
-              50000,
-              '#fc4e2a',
-              75000,
-              '#e31a1c',
-              100000,
-              '#b10026'
-            ]
+          type: 'symbol', layout: {
+            "icon-image": "custom-marker",
           }
         });
 
@@ -110,7 +105,7 @@ function App() {
 
         let lastId;
 
-        map.on('mousemove', 'circles', (e) => {
+        map.on('mousemove', 'markers', (e) => {
           const id = e.features[0].properties.id;
 
           if (id !== lastId) {
@@ -147,7 +142,7 @@ function App() {
           }
         });
 
-        map.on('mouseleave', 'circles', function () {
+        map.on('mouseleave', 'markers', function () {
           lastId = undefined;
           map.getCanvas().style.cursor = '';
           popup.remove();
